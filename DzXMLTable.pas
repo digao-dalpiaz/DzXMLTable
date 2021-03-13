@@ -1,3 +1,13 @@
+{------------------------------------------------------------------------------
+TDzXMLTable component
+Developed by Rodrigo Depine Dalpiaz (digao dalpiaz)
+Flexible dynamic table stored as XML file
+
+https://github.com/digao-dalpiaz/DzXMLTable
+
+Please, read the documentation at GitHub link.
+------------------------------------------------------------------------------}
+
 unit DzXMLTable;
 
 interface
@@ -54,10 +64,10 @@ type
   private
     Data: TObjectList<TDzRecord>;
 
-    FFileMustExist: Boolean;
+    FRequiredFile: Boolean;
     FFileName: string;
 
-    FFieldMustExist: Boolean;
+    FRequiredField: Boolean;
 
     procedure ReadRecord(N: IXMLNode);
 
@@ -70,10 +80,10 @@ type
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
 
-    property FileMustExist: Boolean read FFileMustExist write FFileMustExist default False;
+    property RequiredFile: Boolean read FRequiredFile write FRequiredFile default False;
     property FileName: string read FFileName write FFileName;
 
-    property FieldMustExist: Boolean read FFieldMustExist write FFieldMustExist default False;
+    property RequiredField: Boolean read FRequiredField write FRequiredField default False;
 
     procedure Load;
     procedure Save;
@@ -88,9 +98,20 @@ type
     procedure MoveRec(CurIndex, NewIndex: Integer);
   end;
 
+procedure Register;
+
 implementation
 
 uses Xml.XMLDoc, System.SysUtils, System.Variants;
+
+const STR_VERSION = '1.0';
+
+procedure Register;
+begin
+  RegisterComponents('Digao', [TDzXMLTable]);
+end;
+
+//
 
 constructor TDzXMLTable.Create(AOwner: TComponent);
 begin
@@ -112,10 +133,11 @@ var
 begin
   Data.Clear;
 
+  if (not FRequiredFile) and (not FileExists(FFileName)) then Exit;
+
   X := TXMLDocument.Create(Self);
   try
-    if not ((not FFileMustExist) and (not FileExists(FFileName))) then
-      X.LoadFromFile(FFileName);
+    X.LoadFromFile(FFileName);
 
     Root := X.DocumentElement;
     if Root.NodeName<>STR_XML_DATA_IDENT then
@@ -280,7 +302,7 @@ begin
   F := FindField(Name);
   if F=nil then
   begin
-    if Table.FFieldMustExist then
+    if Table.FRequiredField then
       raise Exception.CreateFmt('Field "%s" not found', [Name]);
 
     Result := Unassigned;

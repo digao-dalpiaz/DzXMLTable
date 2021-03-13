@@ -30,7 +30,8 @@ package DzXMLTable;
 {$IMPLICITBUILD ON}
 
 requires
-  rtl;
+  rtl,
+  xmlrtl;
 
 contains
   DzXMLTable in 'DzXMLTable.pas';
