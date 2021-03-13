@@ -33,7 +33,6 @@ type
   TDzRecord = class
   private
     Table: TDzXMLTable;
-
     Fields: TObjectList<TDzField>;
 
     function GetField(const Name: string): Variant;
@@ -62,6 +61,8 @@ type
 
   TDzXMLTable = class(TComponent)
   private
+    FAbout: string;
+
     Data: TObjectList<TDzRecord>;
 
     FRequiredFile: Boolean;
@@ -80,10 +81,7 @@ type
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
 
-    property RequiredFile: Boolean read FRequiredFile write FRequiredFile default False;
-    property FileName: string read FFileName write FFileName;
-
-    property RequiredField: Boolean read FRequiredField write FRequiredField default False;
+    procedure Clear;
 
     procedure Load;
     procedure Save;
@@ -91,11 +89,17 @@ type
     function New(Index: Integer = -1): TDzRecord;
     procedure Delete(Index: Integer);
 
-    function FindRecByField(const Name: string; Value: Variant): TDzRecord;
+    function FindIndexByField(const Name: string; const Value: Variant): Integer;
+    function FindRecByField(const Name: string; const Value: Variant): TDzRecord;
 
     function GetEnumerator: TEnumerator<TDzRecord>;
 
     procedure MoveRec(CurIndex, NewIndex: Integer);
+  published
+    property RequiredFile: Boolean read FRequiredFile write FRequiredFile default False;
+    property FileName: string read FFileName write FFileName;
+
+    property RequiredField: Boolean read FRequiredField write FRequiredField default False;
   end;
 
 procedure Register;
@@ -116,13 +120,21 @@ end;
 constructor TDzXMLTable.Create(AOwner: TComponent);
 begin
   inherited;
+  FAbout := 'Digao Dalpiaz / Version '+STR_VERSION;
+
   Data := TObjectList<TDzRecord>.Create;
 end;
 
 destructor TDzXMLTable.Destroy;
 begin
   Data.Free;
+
   inherited;
+end;
+
+procedure TDzXMLTable.Clear;
+begin
+  Data.Clear;
 end;
 
 procedure TDzXMLTable.Load;
@@ -240,20 +252,32 @@ begin
   Data.Move(CurIndex, NewIndex);
 end;
 
-function TDzXMLTable.FindRecByField(const Name: string;
-  Value: Variant): TDzRecord;
+function TDzXMLTable.FindIndexByField(const Name: string;
+  const Value: Variant): Integer;
 var
-  R: TDzRecord;
+  I: Integer;
   F: TDzField;
 begin
-  for R in Data do
+  for I := 0 to Data.Count-1 do
   begin
-    F := R.FindField(Name);
+    F := Data[I].FindField(Name);
     if F<>nil then
-      if F.FValue = Value then Exit(R);
+      if F.FValue = Value then Exit(I);
   end;
 
-  Exit(nil);
+  Exit(-1);
+end;
+
+function TDzXMLTable.FindRecByField(const Name: string;
+  const Value: Variant): TDzRecord;
+var
+  Index: Integer;
+begin
+  Index := FindIndexByField(Name, Value);
+  if Index<>-1 then
+    Result := Data[Index]
+  else
+    Result := nil;
 end;
 
 { TDzRecord }
