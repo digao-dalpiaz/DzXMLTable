@@ -14,7 +14,8 @@
 - [Installing](#installing)
 - [Published Properties](#published-properties)
 - [Public Properties](#public-properties)
-- [Procedures/Functions](#proceduresfunctions)
+- [Methods](#methods)
+- [TDzRecord Object](#tdzrecord-object)
 
 ## What's New
 
@@ -70,8 +71,7 @@ Supports Delphi XE3..Delphi 10.4
 
 `RecCount: Integer` = Returns record count.
 
-
-## Procedures/Functions
+## Methods
 
 ```delphi
 procedure Open;
@@ -113,3 +113,41 @@ procedure MoveRec(CurIndex, NewIndex: Integer);
 ```
 Moves a record from `CurIndex` to `NewIndex` position in the table.
 
+## TDzRecord Object
+
+### Properties
+
+`Field[const Name: string]: Variant` = Returns or defines field value as variant by field name.
+When getting field value, if the field does not exist, an exception will be raised, unless the `RequiredField` property is False (in this case, an `Unassigned` value will be returned.
+When setting field value, if the field does not exist, it will be automatically created with specified name and value.
+
+`FieldIdx[Index: Integer]: TDzField` = Returns field object by field index.
+
+> Warning: One record can contain fields that are different from another record. So, you should never use a fixed index to a specific field (like a column) across the records.
+
+`FieldCount: Integer` = Returns number of fields in this record.
+
+### Methods
+
+```delphi
+function ReadDef(const Name: string; DefValue: Variant): Variant;
+```
+Returns field value by field name. If field does not exist in the record, return `DefValue`.
+
+```delphi
+function FindField(const Name: string): TDzField;
+```
+Returns field object by field name. If field does not exist, returns `nil`.
+
+```delphi
+function FieldExists(const Name: string): Boolean;
+```
+Returns true if field exists by specified field name.
+
+```delphi
+procedure ClearFields;
+```
+Clear all fields data in the record (It doesn't just remove the value from the fields, but the fields altogether).
+
+
+> The field name is always case-insensitive.
