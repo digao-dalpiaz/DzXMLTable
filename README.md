@@ -65,8 +65,8 @@ type
   TContact = class
     ID: Integer;
     Name: string;
-	Phone: string;
-	Active: Boolean; //new field in some new program version
+    Phone: string;
+    Active: Boolean; //new field in some new program version
   end;
 
 procedure LoadContactsExample(List: TObjectList<TContact>);
@@ -78,18 +78,18 @@ begin
   XML := TDzXMLTable.Create(nil);
   try
     XML.FileName := 'C:\Data.xml';
-	XML.Load;
-	
-	for Rec in XML do
-	begin
-	  Contact := TContact.Create;
-	  Contact.ID := Rec['ID'];
-	  Contact.Name := Rec['Name'];
-	  Contact.Phone := Rec['Phone'];	  
-	  Contact.Active := Rec.ReadDef('Active', True); //saved xml in old version could not have this filed, so, read with default value.
-	  List.Add(Contact);
-	end;
-	
+    XML.Load;
+    
+    for Rec in XML do
+    begin
+      Contact := TContact.Create;
+      Contact.ID := Rec['ID'];
+      Contact.Name := Rec['Name'];
+      Contact.Phone := Rec['Phone'];	  
+      Contact.Active := Rec.ReadDef('Active', True); //saved xml in old version could not have this filed, so, read with default value.
+      List.Add(Contact);
+    end;
+    
   finally
     XML.Free;
   end;
