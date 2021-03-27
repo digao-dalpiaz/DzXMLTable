@@ -79,6 +79,7 @@ begin
     Exit;
   end;
 
+  //
 
   if not Edit then
     Rec := FrmMain.XT.New;
@@ -95,7 +96,7 @@ function TFrmContact.NameAlreadyExists: Boolean;
 var
   Index: Integer;
 begin
-  Index := FrmMain.XT.FindSameText('Name', EdName.Text);
+  Index := FrmMain.XT.FindIdxBySameText('Name', EdName.Text);
   Result := (Index<>-1) and not (Edit and (Index=FrmMain.L.Selected.Index));
 end;
 

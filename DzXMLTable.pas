@@ -74,6 +74,8 @@ type
 
     function GetRecCount: Integer;
     function GetRecord(Index: Integer): TDzRecord;
+
+    function GetRecordOrNilByIndex(Index: Integer): TDzRecord;
   public
     property Rec[Index: Integer]: TDzRecord read GetRecord; default;
     property RecCount: Integer read GetRecCount;
@@ -89,13 +91,15 @@ type
     function New(Index: Integer = -1): TDzRecord;
     procedure Delete(Index: Integer);
 
-    function FindIndexByField(const Name: string; const Value: Variant): Integer;
+    function FindIdxByField(const Name: string; const Value: Variant): Integer;
     function FindRecByField(const Name: string; const Value: Variant): TDzRecord;
-    function FindSameText(const Name: string; const Value: string): Integer;
+
+    function FindIdxBySameText(const Name: string; const Value: string): Integer;
+    function FindRecBySameText(const Name: string; const Value: string): TDzRecord;
 
     function GetEnumerator: TEnumerator<TDzRecord>;
 
-    procedure MoveRec(CurIndex, NewIndex: Integer);
+    procedure Move(CurIndex, NewIndex: Integer);
   published
     property RequiredFile: Boolean read FRequiredFile write FRequiredFile default False;
     property FileName: string read FFileName write FFileName;
@@ -154,7 +158,8 @@ begin
 
     Root := X.DocumentElement;
     if Root.NodeName<>STR_XML_DATA_IDENT then
-      raise Exception.Create('Invalid root element name');
+      raise Exception.CreateFmt('Invalid root element name (expected "%s", found "%s")',
+        [STR_XML_DATA_IDENT, Root.NodeName]);
 
     for I := 0 to Root.ChildNodes.Count-1 do
       ReadRecord(Root.ChildNodes[I]);
@@ -172,7 +177,8 @@ var
   XMLFld: IXMLNode;
 begin
   if N.NodeName<>STR_XML_RECORD_IDENT then
-    raise Exception.Create('Invalid record element name');
+    raise Exception.CreateFmt('Invalid record element name (expected "%s", found "%s")',
+      [STR_XML_RECORD_IDENT, N.NodeName]);
 
   R := TDzRecord.Create(Self);
   Data.Add(R);
@@ -229,6 +235,14 @@ begin
   Result := Data.Count;
 end;
 
+function TDzXMLTable.GetRecordOrNilByIndex(Index: Integer): TDzRecord;
+begin
+  if Index<>-1 then
+    Result := Data[Index]
+  else
+    Result := nil;
+end;
+
 function TDzXMLTable.GetEnumerator: TEnumerator<TDzRecord>;
 begin
   Result := Data.GetEnumerator;
@@ -248,12 +262,12 @@ begin
   Data.Delete(Index);
 end;
 
-procedure TDzXMLTable.MoveRec(CurIndex, NewIndex: Integer);
+procedure TDzXMLTable.Move(CurIndex, NewIndex: Integer);
 begin
   Data.Move(CurIndex, NewIndex);
 end;
 
-function TDzXMLTable.FindIndexByField(const Name: string;
+function TDzXMLTable.FindIdxByField(const Name: string;
   const Value: Variant): Integer;
 var
   I: Integer;
@@ -269,7 +283,7 @@ begin
   Exit(-1);
 end;
 
-function TDzXMLTable.FindSameText(const Name, Value: string): Integer;
+function TDzXMLTable.FindIdxBySameText(const Name, Value: string): Integer;
 var
   I: Integer;
   F: TDzField;
@@ -286,14 +300,13 @@ end;
 
 function TDzXMLTable.FindRecByField(const Name: string;
   const Value: Variant): TDzRecord;
-var
-  Index: Integer;
 begin
-  Index := FindIndexByField(Name, Value);
-  if Index<>-1 then
-    Result := Data[Index]
-  else
-    Result := nil;
+  Result := GetRecordOrNilByIndex(FindIdxByField(Name, Value));
+end;
+
+function TDzXMLTable.FindRecBySameText(const Name, Value: string): TDzRecord;
+begin
+  Result := GetRecordOrNilByIndex(FindIdxBySameText(Name, Value));
 end;
 
 { TDzRecord }

@@ -33,7 +33,8 @@ implementation
 
 {$R *.fmx}
 
-uses UFrmContact, System.SysUtils;
+uses UFrmContact, System.SysUtils,
+  FMX.Dialogs, FMX.DialogService, System.UITypes;
 
 procedure TFrmMain.FormCreate(Sender: TObject);
 begin
@@ -93,11 +94,24 @@ begin
 end;
 
 procedure TFrmMain.BtnDelClick(Sender: TObject);
+var
+  R: TDzRecord;
 begin
-  XT.Delete(L.Selected.Index);
-  L.Items.Delete(L.Selected.Index);
+  R := XT[L.Selected.Index];
 
-  UpdButtons;
+  TDialogService.MessageDialog(
+    Format('Do you want to delete contact "%s"?', [R['Name']]),
+    TMsgDlgType.mtConfirmation, mbYesNo, TMsgDlgBtn.mbNo, 0,
+    procedure (const AResult: TModalResult)
+    begin
+      if AResult = mrYes then
+      begin
+        XT.Delete(L.Selected.Index);
+        L.Items.Delete(L.Selected.Index);
+
+        UpdButtons;
+      end;
+    end);
 end;
 
 end.

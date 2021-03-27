@@ -1,6 +1,7 @@
 object FrmContact: TFrmContact
   Left = 0
   Top = 0
+  ActiveControl = EdName
   BorderIcons = [biSystemMenu]
   BorderStyle = Single
   Caption = 'New Contact'
