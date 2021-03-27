@@ -86,7 +86,7 @@ begin
       Contact.ID := Rec['ID'];
       Contact.Name := Rec['Name'];
       Contact.Phone := Rec['Phone'];	  
-      Contact.Active := Rec.ReadDef('Active', True); //saved xml in old version could not have this filed, so, read with default value.
+      Contact.Active := Rec.ReadDef('Active', True); //saved xml in old version could not have this field, so, read with default value.
       List.Add(Contact);
     end;
     
