@@ -91,6 +91,7 @@ type
 
     function FindIndexByField(const Name: string; const Value: Variant): Integer;
     function FindRecByField(const Name: string; const Value: Variant): TDzRecord;
+    function FindSameText(const Name: string; const Value: string): Integer;
 
     function GetEnumerator: TEnumerator<TDzRecord>;
 
@@ -263,6 +264,21 @@ begin
     F := Data[I].FindField(Name);
     if F<>nil then
       if F.FValue = Value then Exit(I);
+  end;
+
+  Exit(-1);
+end;
+
+function TDzXMLTable.FindSameText(const Name, Value: string): Integer;
+var
+  I: Integer;
+  F: TDzField;
+begin
+  for I := 0 to Data.Count-1 do
+  begin
+    F := Data[I].FindField(Name);
+    if F<>nil then
+      if SameText(F.FValue, Value) then Exit(I);
   end;
 
   Exit(-1);
