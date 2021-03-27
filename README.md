@@ -12,6 +12,7 @@
 - [What's New](#whats-new)
 - [Component Description](#component-description)
 - [Installing](#installing)
+- [Example of use](#example-of-use)
 - [Published Properties](#published-properties)
 - [Public Properties](#public-properties)
 - [Methods](#methods)
@@ -19,7 +20,7 @@
 
 ## What's New
 
-- 03/13/2021
+- 03/27/2021
 
    - First version of component.
 
@@ -57,6 +58,46 @@ The DzXMLTable is a non-visual component where you can store records with fields
 
 Supports Delphi XE3..Delphi 10.4
 
+## Example of use
+
+```delphi
+type
+  TContact = class
+    ID: Integer;
+    Name: string;
+	Phone: string;
+	Active: Boolean; //new field in some new program version
+  end;
+
+procedure LoadContactsExample(List: TObjectList<TContact>);
+var
+  XML: TDzXMLTable;  
+  Rec: TDzRecord;
+  Contact: TContact;
+begin
+  XML := TDzXMLTable.Create(nil);
+  try
+    XML.FileName := 'C:\Data.xml';
+	XML.Load;
+	
+	for Rec in XML do
+	begin
+	  Contact := TContact.Create;
+	  Contact.ID := Rec['ID'];
+	  Contact.Name := Rec['Name'];
+	  Contact.Phone := Rec['Phone'];	  
+	  Contact.Active := Rec.ReadDef('Active', True); //saved xml in old version could not have this filed, so, read with default value.
+	  List.Add(Contact);
+	end;
+	
+  finally
+    XML.Free;
+  end;
+end;
+```
+
+> The field name is always case-insensitive in all methods and properties parameter.
+
 ## Published Properties
 
 `FileName: string` = Specifies the full XML file name to Open and Save the table
@@ -74,7 +115,7 @@ Supports Delphi XE3..Delphi 10.4
 ## Methods
 
 ```delphi
-procedure Open;
+procedure Load;
 ```
 Load the table from file specified at FileName property
 
@@ -99,17 +140,27 @@ procedure Delete(Index: Integer);
 Delete a record by index.
 
 ```delphi
-function FindIndexByField(const Name: string; const Value: Variant): Integer;
+function FindIdxByField(const Name: string; const Value: Variant): Integer;
 ```
-Find any field value on all records, returning record index. If no record is found, the function will return `-1`.
+Returns the first record index that matches same Name and Value. If no record is found, the function will return `nil`.
 
 ```delphi
 function FindRecByField(const Name: string; const Value: Variant): TDzRecord;
 ```
-Find any field value on all records, returning record object. If no record is found, the function will return `nil`.
+Returns the first record object that matches same Name and Value. If no record is found, the function will return `nil`.
 
 ```delphi
-procedure MoveRec(CurIndex, NewIndex: Integer);
+function FindIdxBySameText(const Name: string; const Value: Variant): Integer;
+```
+Returns the first record index that matches same Name and Value, **where Value is compared as String using case-insensitive**. If no record is found, the function will return `nil`.
+
+```delphi
+function FindRecBySameText(const Name: string; const Value: Variant): TDzRecord;
+```
+Returns the first record object that matches same Name and Value, **where Value is compared as String using case-insensitive**. If no record is found, the function will return `nil`.
+
+```delphi
+procedure Move(CurIndex, NewIndex: Integer);
 ```
 Moves a record from `CurIndex` to `NewIndex` position in the table.
 
@@ -148,6 +199,3 @@ Returns true if field exists by specified field name.
 procedure ClearFields;
 ```
 Clear all fields data in the record (It doesn't just remove the value from the fields, but the fields altogether).
-
-
-> The field name is always case-insensitive.
