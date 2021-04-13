@@ -113,7 +113,7 @@ implementation
 
 uses Xml.XMLDoc, System.SysUtils, System.Variants;
 
-const STR_VERSION = '1.0';
+const STR_VERSION = '1.1';
 
 procedure Register;
 begin

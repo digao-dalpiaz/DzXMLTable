@@ -20,7 +20,11 @@
 
 ## What's New
 
-- 03/27/2021
+- 04/13/2021 (Version 1.1)
+
+   - Fixed previous Delphi versions (at least on XE2, XE3, XE4 and XE5) package tag. It was causing package compilation error.
+
+- 03/27/2021 (Version 1.0)
 
    - First version of component.
 
